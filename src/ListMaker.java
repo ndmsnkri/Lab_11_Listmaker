@@ -1,3 +1,5 @@
+import com.sun.xml.internal.ws.encoding.soap.SOAP12Constants;
+
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -10,7 +12,7 @@ public class ListMaker {
 
         do {
             displayMenu();
-            choice = SafeInput.getRegExString(scanner, "Enter your choice: [AaDdPpQq]", "[AaDdPpQq]").toLowerCase().charAt(0);
+            choice = SafeInput.getRegExString(scanner, "Enter your choice", "[AaDdPpQq]").toLowerCase().charAt(0);
 
             switch (choice) {
                 case 'a':
@@ -23,7 +25,7 @@ public class ListMaker {
                     printList();
                     break;
                 case 'q':
-                    if (getConfirmation(scanner, "Are you sure you want to quit? (y/n): ")) {
+                    if (getConfirmation(scanner, "Are you sure you want to quit?")) {
                         System.out.println("Goodbye!");
                         return;
                     }
@@ -43,38 +45,45 @@ public class ListMaker {
     }
 
     private static void addItem(Scanner scanner) {
-        String item = SafeInput.getNonEmptyString(scanner, "Enter an item to add: ");
-        itemList.add(item);
-        System.out.println("Item added to the list.");
+        System.out.print("\nEnter an item to add: ");
+        String item = scanner.nextLine().trim();
+
+        if (!item.isEmpty()) {
+            itemList.add(item);
+            System.out.println("Item added to the list.\n");
+        } else {
+            System.out.println("Item cannot be empty. Please try again.\n");
+        }
     }
 
     private static void deleteItem(Scanner scanner) {
         if (itemList.isEmpty()) {
-            System.out.println("The list is empty.");
+            System.out.println("The list is empty.\n");
             return;
         }
 
         printNumberedItems();
-        int itemNumber = SafeInput.getRangedInt(scanner, "Enter the item number to delete: ", 1, itemList.size());
+        int itemNumber = SafeInput.getRangedInt(scanner, "Enter the item number to delete", 1, itemList.size());
 
         String removedItem = itemList.remove(itemNumber - 1);
-        System.out.println("Item '" + removedItem + "' has been deleted.");
+        System.out.println("Item '" + removedItem + "' has been deleted.\n");
     }
 
     private static void printList() {
         if (itemList.isEmpty()) {
-            System.out.println("The list is empty.");
+            System.out.println("The list is empty.\n");
             return;
         }
 
-        System.out.println("Current List:");
+        System.out.println("\nCurrent List:");
         for (int i = 0; i < itemList.size(); i++) {
             System.out.println((i + 1) + ". " + itemList.get(i));
         }
+        System.out.println();
     }
 
     private static void printNumberedItems() {
-        System.out.println("Numbered Items:");
+        System.out.println("\nNumbered Items:");
         for (int i = 0; i < itemList.size(); i++) {
             System.out.println((i + 1) + ". " + itemList.get(i));
         }
