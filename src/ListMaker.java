@@ -1,10 +1,11 @@
-import com.sun.xml.internal.ws.encoding.soap.SOAP12Constants;
-
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class ListMaker {
-    private static ArrayList<String> itemList = new ArrayList<>();
+    private static ArrayList<String> currentList = new ArrayList<>();
+    private static boolean needsToBeSaved = false;
+    private static String currentFileName = null;
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -12,7 +13,7 @@ public class ListMaker {
 
         do {
             displayMenu();
-            choice = SafeInput.getRegExString(scanner, "Enter your choice", "[AaDdPpQq]").toLowerCase().charAt(0);
+            choice = getChoice(scanner);
 
             switch (choice) {
                 case 'a':
@@ -21,14 +22,20 @@ public class ListMaker {
                 case 'd':
                     deleteItem(scanner);
                     break;
-                case 'p':
-                    printList();
+                case 'v':
+                    viewList();
+                    break;
+                case 'o':
+                    openListFile(scanner);
+                    break;
+                case 's':
+                    saveListToFile(scanner);
+                    break;
+                case 'c':
+                    clearList(scanner);
                     break;
                 case 'q':
-                    if (getConfirmation(scanner, "Are you sure you want to quit?")) {
-                        System.out.println("Goodbye!");
-                        return;
-                    }
+                    quitProgram(scanner);
                     break;
                 default:
                     System.out.println("Invalid choice. Please try again.");
@@ -40,8 +47,15 @@ public class ListMaker {
         System.out.println("Menu:");
         System.out.println("A - Add an item to the list");
         System.out.println("D - Delete an item from the list");
-        System.out.println("P - Print the list");
+        System.out.println("V - View the list");
+        System.out.println("O - Open a list file from disk");
+        System.out.println("S - Save the current list file to disk");
+        System.out.println("C - Clear the list");
         System.out.println("Q - Quit");
+    }
+
+    private static char getChoice(Scanner scanner) {
+        return SafeInput.getRegExString(scanner, "Enter your choice", "[AaDdVvOoSsCcQq]").toLowerCase().charAt(0);
     }
 
     private static void addItem(Scanner scanner) {
@@ -49,7 +63,8 @@ public class ListMaker {
         String item = scanner.nextLine().trim();
 
         if (!item.isEmpty()) {
-            itemList.add(item);
+            currentList.add(item);
+            needsToBeSaved = true;
             System.out.println("Item added to the list.\n");
         } else {
             System.out.println("Item cannot be empty. Please try again.\n");
@@ -57,36 +72,103 @@ public class ListMaker {
     }
 
     private static void deleteItem(Scanner scanner) {
-        if (itemList.isEmpty()) {
+        if (currentList.isEmpty()) {
             System.out.println("The list is empty.\n");
             return;
         }
 
-        printNumberedItems();
-        int itemNumber = SafeInput.getRangedInt(scanner, "Enter the item number to delete", 1, itemList.size());
+        viewList();
+        int itemNumber = SafeInput.getRangedInt(scanner, "Enter the item number to delete", 1, currentList.size());
 
-        String removedItem = itemList.remove(itemNumber - 1);
+        String removedItem = currentList.remove(itemNumber - 1);
+        needsToBeSaved = true;
         System.out.println("Item '" + removedItem + "' has been deleted.\n");
     }
 
-    private static void printList() {
-        if (itemList.isEmpty()) {
+    private static void viewList() {
+        if (currentList.isEmpty()) {
             System.out.println("The list is empty.\n");
             return;
         }
 
         System.out.println("\nCurrent List:");
-        for (int i = 0; i < itemList.size(); i++) {
-            System.out.println((i + 1) + ". " + itemList.get(i));
+        for (int i = 0; i < currentList.size(); i++) {
+            System.out.println((i + 1) + ". " + currentList.get(i));
         }
         System.out.println();
     }
 
-    private static void printNumberedItems() {
-        System.out.println("\nNumbered Items:");
-        for (int i = 0; i < itemList.size(); i++) {
-            System.out.println((i + 1) + ". " + itemList.get(i));
+    private static void openListFile(Scanner scanner) {
+        if (needsToBeSaved) {
+            if (!getConfirmation(scanner, "Save unsaved changes before opening a new file?")) {
+                System.out.println("Changes abandoned.\n");
+                return;
+            } else {
+                saveListToFile(scanner);
+            }
         }
+
+        System.out.print("Enter the filename to open: ");
+        String fileName = scanner.nextLine();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            currentList.clear();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                currentList.add(line);
+            }
+            needsToBeSaved = false;
+            currentFileName = fileName;
+            System.out.println("List loaded from " + fileName + "\n");
+        } catch (IOException e) {
+            System.out.println("Error reading file. " + e.getMessage() + "\n");
+        }
+    }
+
+    private static void saveListToFile(Scanner scanner) {
+        if (currentFileName == null) {
+            System.out.print("Enter the filename to save: ");
+            currentFileName = scanner.nextLine();
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(currentFileName))) {
+            for (String item : currentList) {
+                writer.write(item);
+                writer.newLine();
+            }
+            needsToBeSaved = false;
+            System.out.println("List saved to " + currentFileName + "\n");
+        } catch (IOException e) {
+            System.out.println("Error writing to file. " + e.getMessage() + "\n");
+        }
+    }
+
+    private static void clearList(Scanner scanner) {
+        if (currentList.isEmpty()) {
+            System.out.println("The list is already empty.\n");
+            return;
+        }
+
+        if (getConfirmation(scanner, "Are you sure you want to clear the list?")) {
+            currentList.clear();
+            needsToBeSaved = true;
+            System.out.println("List cleared.\n");
+        } else {
+            System.out.println("List not cleared.\n");
+        }
+    }
+
+    private static void quitProgram(Scanner scanner) {
+        if (needsToBeSaved) {
+            if (getConfirmation(scanner, "Save unsaved changes before quitting?")) {
+                saveListToFile(scanner);
+            } else {
+                System.out.println("Changes abandoned.\n");
+            }
+        }
+
+        System.out.println("Goodbye!");
+        System.exit(0);
     }
 
     private static boolean getConfirmation(Scanner scanner, String prompt) {

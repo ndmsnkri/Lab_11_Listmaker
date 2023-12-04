@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="146050ac-5ab2-40ef-acbe-65c9545062f9" name="Changes" comment="Initial commit" />
+    <list default="true" id="146050ac-5ab2-40ef-acbe-65c9545062f9" name="Changes" comment="Initial commit">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/ListMaker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ListMaker.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -67,6 +70,8 @@
       <updated>1699294064741</updated>
       <workItem from="1699294065779" duration="3715000" />
       <workItem from="1699383096099" duration="112000" />
+      <workItem from="1699388042513" duration="336000" />
+      <workItem from="1701672443956" duration="1646000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <option name="closed" value="true" />
@@ -84,7 +89,15 @@
       <option name="project" value="LOCAL" />
       <updated>1699383135666</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Initial commit">
+      <option name="closed" value="true" />
+      <created>1699388055663</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1699388055663</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
